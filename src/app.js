@@ -15,9 +15,17 @@ app.use(express.static('public'));
 // Middleware to parse cookies
 app.use(cookieParser());
 
-// CORS configuration and it is a middleware
-app.use(cors({
-    origin: process.env.CORS_ORIGIN,
-    credentials: true,
-}));
+// // CORS configuration and it is a middleware
+// app.use(cors({
+//     origin: process.env.CORS_ORIGIN,
+//     credentials: true,
+// }));
 
+
+// routes import
+import userRoutes from './routes/user.routes.js';
+
+// routes
+app.use('/api/v1/users', userRoutes);
+
+export { app }; 

@@ -3,8 +3,17 @@ import { DB_NAME } from "./constants.js"; // note the .js
 import connectDB from "./db/index.js"; // note the .js
 import dotenv from "dotenv";
 dotenv.config({ path: "./.env" });
+import { app } from "./app.js"; // note the .js
 
-connectDB();
+connectDB()
+  .then(() => {
+    app.listen(process.env.PORT , () => {
+      console.log(`⚙️ Server is running at port : ${process.env.PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.log("MONGO db connection failed !!! ", err);
+  });
 
 /*
 import express from "express";
