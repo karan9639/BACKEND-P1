@@ -42,20 +42,23 @@ const registerUser = asyncHandler(async (req, res) => {
       : null;
 
     if (!avatarUploadResponse) {
-        throw new ApiError(500, "Avatar upload failed");
+      throw new ApiError(500, "Avatar upload failed");
     }
-    const User = await User.create({
-        fullName,
-        username: username.toLowerCase(),
-        email,
-        password,
-        avatar: avatarUploadResponse.url,
-        coverImage: coverImageUploadResponse?.url || null,
+    // avoid shadowing imported `User` by using a different variable name
+    const newUser = await User.create({
+      fullName,
+      username: username.toLowerCase(),
+      email,
+      password,
+      avatar: avatarUploadResponse.url,
+      coverImage: coverImageUploadResponse?.url || null,
     });
 
-    const createdUser = await User.findById(User._id).select("-password -refreshToken -__v");
-    if(!createdUser){
-        throw new ApiError(500, "User creation failed");
+    const createdUser = await User.findById(newUser._id).select(
+      "-password -refreshToken -__v"
+    );
+    if (!createdUser) {
+      throw new ApiError(500, "User creation failed");
     }
 
     return res.status(201).json(new ApiResponse(201, createdUser, "User registered successfully"));
