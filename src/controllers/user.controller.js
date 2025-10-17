@@ -8,14 +8,12 @@ const registerUser = asyncHandler(async (req, res) => {
   // get user data from req.body
   // validation - not empty, email format, password strength
   // check if username or email already exists
-  // check if avatar and coverImage are provided
-  // upload avatar and coverImage to cloudinary
+  // avatar is required, coverImage is optional
+  // upload avatar and coverImage (if provided) to cloudinary
   // create user in database
   // remove password and refreshToken and other sensitive info from response
   // return success response
   const { fullName, username, email, password } = req.body;
-  console.log(email);
-  console.log(req.body);
 
   if (
     [fullName, username, email, password].some(
@@ -33,36 +31,35 @@ const registerUser = asyncHandler(async (req, res) => {
   const avatarLocalPath = req.files?.avatar?.[0]?.path;
   const coverImageLocalPath = req.files?.coverImage?.[0]?.path;
   if (!avatarLocalPath) {
-    throw new ApiError(400, "Avatar and cover image are required");
+    throw new ApiError(400, "Avatar is required");
   }
 
-    const avatarUploadResponse = await uploadOnCloudinary(avatarLocalPath);
-    const coverImageUploadResponse = coverImageLocalPath
-      ? await uploadOnCloudinary(coverImageLocalPath)
-      : null;
+  const avatarUploadResponse = await uploadOnCloudinary(avatarLocalPath);
+  const coverImageUploadResponse = coverImageLocalPath
+    ? await uploadOnCloudinary(coverImageLocalPath)
+    : null;
 
-    if (!avatarUploadResponse) {
-      throw new ApiError(500, "Avatar upload failed");
-    }
-    // avoid shadowing imported `User` by using a different variable name
-    const newUser = await User.create({
-      fullName,
-      username: username.toLowerCase(),
-      email,
-      password,
-      avatar: avatarUploadResponse.url,
-      coverImage: coverImageUploadResponse?.url || null,
-    });
+  if (!avatarUploadResponse) {
+    throw new ApiError(500, "Avatar upload failed");
+  }
+  // avoid shadowing imported `User` by using a different variable name
+  const newUser = await User.create({
+    fullName,
+    username: username.toLowerCase(),
+    email,
+    password,
+    avatar: avatarUploadResponse.url,
+    coverImage: coverImageUploadResponse?.url || null,
+  });
 
-    const createdUser = await User.findById(newUser._id).select(
-      "-password -refreshToken -__v"
-    );
-    if (!createdUser) {
-      throw new ApiError(500, "User creation failed");
-    }
+  const createdUser = await User.findById(newUser._id).select(
+    "-password -refreshToken -__v"
+  );
+  if (!createdUser) {
+    throw new ApiError(500, "User creation failed");
+  }
 
-    return res.status(201).json(new ApiResponse(201, createdUser, "User registered successfully"));
-
+  return res.status(201).json(new ApiResponse(201, createdUser, "User registered successfully"));
 });
 
 export { registerUser };

@@ -1,4 +1,3 @@
-// ...existing code...
 export class ApiError extends Error {
   constructor(
     statusCode = 500,
@@ -20,4 +19,3 @@ export class ApiError extends Error {
     }
   }
 }
-// ...existing code...
