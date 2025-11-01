@@ -30,7 +30,9 @@ userSchema.methods.generateAccessToken = function() {
         username: this.username,
         fullName: this.fullName
     };
-    return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRY });
+    return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
+    });
 }
 
 userSchema.methods.generateRefreshToken = function(){
@@ -38,7 +40,7 @@ userSchema.methods.generateRefreshToken = function(){
       _id: this._id,
     };
     return jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
-      expiresIn: REFRESH_TOKEN_EXPIRY,
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
     });
 }
 

@@ -13,6 +13,7 @@ const generateTokens = async (userId) => {
     await user.save({ validateBeforeSave: false });
     return { accessToken, refreshToken };
   } catch (error) {
+    console.error("Error generating tokens:", error);
     throw new ApiError(500, "Token generation failed");
   }
 };
@@ -97,7 +98,7 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(404, "User not found");
   }
 
-  const isPasswordValid = await user.comparePassword(password);
+  const isPasswordValid = await user.isPasswordMatch(password);
   if (!isPasswordValid) {
     throw new ApiError(401, "Invalid password");
   }
@@ -134,6 +135,7 @@ const logoutUser = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(req.user._id, {
     $set: { refreshToken: undefined },
   });
+  
 
   const options = {
     httpOnly: true,
